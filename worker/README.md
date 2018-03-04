@@ -34,7 +34,7 @@ apt install -y docker.io dkms
 
 ```sh
 cd ~
-git clone https://github.com/apprenda/kubernetes-ovn-heterogeneous-cluster
+git clone https://github.com/funky81/kubernetes-ovn-heterogeneous-cluster
 cd kubernetes-ovn-heterogeneous-cluster/deb
 
 dpkg -i openvswitch-common_2.7.2-1_amd64.deb \
@@ -257,7 +257,7 @@ Now, one needs to set-up the overlay (OVN) network. On a per node basis, downloa
 
 ```sh
 cd c:\ovs
-Start-BitsTransfer https://raw.githubusercontent.com/apprenda/kubernetes-ovn-heterogeneous-cluster/master/worker/windows/install_ovn.ps1
+Start-BitsTransfer https://raw.githubusercontent.com/funky81/kubernetes-ovn-heterogeneous-cluster/master/worker/windows/install_ovn.ps1
 ```
 Now, **edit the contents of install_ovn.ps1 accordingly before running the Powershell script**.
 ```sh
@@ -271,7 +271,7 @@ We are now ready to set-up Kubernetes Windows worker node.
 On a per node basis, download `install_k8s.ps1` over to `c:\ovs` on the Windows node.
 ```
 cd c:\ovs
-Start-BitsTransfer https://raw.githubusercontent.com/apprenda/kubernetes-ovn-heterogeneous-cluster/master/worker/windows/install_k8s.ps1
+Start-BitsTransfer https://raw.githubusercontent.com/funky81/kubernetes-ovn-heterogeneous-cluster/master/worker/windows/install_k8s.ps1
 ```
 Now, **edit the contents of install_k8s.ps1 accordingly before running the Powershell script**.
 Then, start a new Powershell session with administrator privileges to install Kubernetes:

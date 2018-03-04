@@ -6,7 +6,7 @@ In a PowerShell with Administrator privileges run:
 
 ```sh
 cd C:\
-Start-BitsTransfer https://github.com/apprenda/kubernetes-ovn-heterogeneous-cluster/archive/master.zip
+Start-BitsTransfer https://github.com/funky81/kubernetes-ovn-heterogeneous-cluster/archive/master.zip
 cmd /c '"C:\Program Files\7-Zip\7z.exe" x master.zip'
 rm master.zip
 ```

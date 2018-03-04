@@ -15,6 +15,7 @@ This document describes, step-by-step, how to provision a Kubernetes cluster com
 * Peter Hornyack (Google)
 * The authors of https://github.com/openvswitch/ovn-kubernetes
 * [Kubernetes SIG-Windows](https://github.com/kubernetes/community/tree/master/sig-windows)
+* Author of this [Github](https://github.com/bsteciuk/kubernetes-ovn-heterogeneous-cluster)
 
 ## Requirements
 
