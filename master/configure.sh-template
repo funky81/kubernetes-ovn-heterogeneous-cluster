@@ -72,7 +72,7 @@ cp -R tmp/manifests /etc/kubernetes/
 curl -Lskj -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v$K8S_VERSION/bin/linux/amd64/kubectl
 chmod +x /usr/bin/kubectl
 
-kubectl config set-cluster default-cluster --server=https://$MASTER_INTERNAL_IP --certificate-authority=/etc/kubernetes/tls/ca.pem
+kubectl config set-cluster default-cluster --server=https://$MASTER_IP --certificate-authority=/etc/kubernetes/tls/ca.pem
 kubectl config set-credentials default-admin --certificate-authority=/etc/kubernetes/tls/ca.pem --client-key=/etc/kubernetes/tls/admin-key.pem --client-certificate=/etc/kubernetes/tls/admin.pem
 kubectl config set-context local --cluster=default-cluster --user=default-admin
 kubectl config use-context local
@@ -101,6 +101,7 @@ done
 export TOKEN=$(kubectl describe secret $(kubectl get secrets | grep default | cut -f1 -d ' ') | grep -E '^token' | cut -f2 -d':' | tr -d '\t')
 
 sed -i"*" "s|--advertise-address=${MASTER_IP}|--advertise-address=${MASTER_INTERNAL_IP}|g" /etc/kubernetes/manifests/apiserver.yaml
+kubectl config set-cluster default-cluster --server=https://$MASTER_INTERNAL_IP --certificate-authority=/etc/kubernetes/tls/ca.pem
 
 ovs-vsctl set Open_vSwitch . \
   external_ids:k8s-api-server="https://$MASTER_INTERNAL_IP" \
