@@ -1,4 +1,4 @@
-
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 $SUBNET="10.244.9.0/24" # The minion subnet used to spawn pods on
 $GATEWAY_IP="10.244.9.1" # first ip of the subnet
 $CLUSTER_IP_SUBNET="10.244.0.0/16" # The big subnet which includes the minions subnets
