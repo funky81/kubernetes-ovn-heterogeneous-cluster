@@ -8,3 +8,4 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectAltName = @alt_names
 [alt_names]
 IP.1 = __LOCAL_IP__
+IP.2 = __K8S_WORKER_LINUX_NODE_POD_SUBNET__
