@@ -11,34 +11,48 @@ $HOSTNAME=hostname
 $K8S_ZIP=".\k8s_ovn_service_prerelease.zip" # Location of k8s OVN binaries (DO NOT CHANGE unless you know what you're doing)
 $OVS_PATH="c:\Program Files\Cloudbase Solutions\Open vSwitch\bin" # Default installation directory for OVS (DO NOT CHANGE unless you know what you're doing)
 
+Write-Host "Stopping Docker"
 Stop-Service docker
+Write-Host "Removing Container Network"
 Get-ContainerNetwork | Remove-ContainerNetwork -Force
 cmd /c 'echo { "bridge" : "none" } > C:\ProgramData\docker\config\daemon.json'
+Write-Host "Starting Docker"
 Start-Service docker
 
+Write-Host "Creating docker Network"
 docker network create -d transparent --gateway $GATEWAY_IP --subnet $SUBNET -o com.docker.network.windowsshim.interface=$INTERFACE_ALIAS external
 
 $a = Get-NetAdapter | where Name -Match HNSTransparent
+Write-Host "Renaming netadapter $a[0]"
 rename-netadapter $a[0].name -newname HNSTransparent
 
+Write-Host "Stopping ovs-vswitchd"
 stop-service ovs-vswitchd -force; disable-vmswitchextension "cloudbase open vswitch extension";
+Write-Host "Running ovs-vsctl --no-wait del-br br-ex"
 ovs-vsctl --no-wait del-br br-ex
 
+Write-Host "Running ovs-vsctl --no-wait --may-exist add-br br-ex"
 ovs-vsctl --no-wait --may-exist add-br br-ex
+Write-Host "Running ovs-vsctl --no-wait add-port br-ex HNSTransparent -- set interface HNSTransparent type=internal"
 ovs-vsctl --no-wait add-port br-ex HNSTransparent -- set interface HNSTransparent type=internal
+Write-Host "Running: ovs-vsctl --no-wait add-port br-ex $INTERFACE_ALIAS"
 ovs-vsctl --no-wait add-port br-ex $INTERFACE_ALIAS
 
+Write-Host "Enabling vmswitchextension"
 enable-vmswitchextension "cloudbase open vswitch extension"; sleep 2; restart-service ovs-vswitchd
 
+Write-Host "Setting ovs external ids"
 ovs-vsctl set Open_vSwitch . external_ids:k8s-api-server="$($KUBERNETES_API_SERVER):8080"
 ovs-vsctl set Open_vSwitch . external_ids:ovn-remote="tcp:$($KUBERNETES_API_SERVER):6642" external_ids:ovn-nb="tcp:$($KUBERNETES_API_SERVER):6641" external_ids:ovn-encap-ip=$PUBLIC_IP external_ids:ovn-encap-type="geneve"
 
 $GUID = (New-Guid).Guid
 ovs-vsctl set Open_vSwitch . external_ids:system-id="$($GUID)"
 
+Write-Host "Messing around with netsh"
 # On some cloud-providers this is needed, otherwise RDP connection may bork
 netsh interface ipv4 set subinterface "HNSTransparent" mtu=1430 store=persistent
 
+Write-Host "Installing 7zip"
 # Install 7z so we can extract Kubernetes/ovn-k8s binaries
 Start-BitsTransfer http://www.7-zip.org/a/7z1604-x64.exe
 cmd /c '7z1604-x64.exe /S /qn'
@@ -50,7 +64,9 @@ cmd /c $unzipCmd
 
 cmd /c 'sc create ovn-k8s binPath= "\"c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\servicewrapper.exe\" ovn-k8s \"c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\k8s_ovn.exe\"" type= own start= auto error= ignore depend= ovsdb-server/ovn-controller displayname= "OVN Watcher" obj= LocalSystem'
 
+Write-Host "Running windows-init.exe"
 windows-init.exe windows-init --node-name $HOSTNAME --minion-switch-subnet $SUBNET --cluster-ip-subnet $CLUSTER_IP_SUBNET
-start-service ovn-k8s
 
+Write-Host "Starting ovn-k8s service"
+start-service ovn-k8s
 
