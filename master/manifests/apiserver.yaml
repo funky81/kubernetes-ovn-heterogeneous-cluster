@@ -18,7 +18,7 @@ spec:
       - --anonymous-auth=false
       - --service-cluster-ip-range=__K8S_SERVICE_SUBNET__
       - --secure-port=443
-      - --advertise-address=__MASTER_INTERNAL_IP__
+      - --advertise-address=__MASTER_IP__
       - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
       - --tls-cert-file=/etc/kubernetes/tls/apiserver.pem
       - --tls-private-key-file=/etc/kubernetes/tls/apiserver-key.pem

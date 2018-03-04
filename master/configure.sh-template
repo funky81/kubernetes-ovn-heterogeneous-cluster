@@ -67,8 +67,7 @@ cd ..
 mkdir -p /etc/kubernetes
 cp -R tmp/manifests /etc/kubernetes/
 
-systemctl enable kubelet
-systemctl start kubelet
+
 
 curl -Lskj -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v$K8S_VERSION/bin/linux/amd64/kubectl
 chmod +x /usr/bin/kubectl
@@ -78,6 +77,8 @@ kubectl config set-credentials default-admin --certificate-authority=/etc/kubern
 kubectl config set-context local --cluster=default-cluster --user=default-admin
 kubectl config use-context local
 
+systemctl enable kubelet
+systemctl start kubelet
 
 
 echo "Sleeping for 90 seconds before polling for k8s api server"
@@ -98,6 +99,8 @@ done
 
 
 export TOKEN=$(kubectl describe secret $(kubectl get secrets | grep default | cut -f1 -d ' ') | grep -E '^token' | cut -f2 -d':' | tr -d '\t')
+
+sed -i"*" "s|--advertise-address=${MASTER_IP}|--advertise-address=${MASTER_INTERNAL_IP}|g" /etc/kubernetes/manifests/apiserver.yaml
 
 ovs-vsctl set Open_vSwitch . \
   external_ids:k8s-api-server="https://$MASTER_INTERNAL_IP" \
