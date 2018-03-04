@@ -8,7 +8,7 @@ pwd
 
 rm -rf tmp
 mkdir tmp
-cp -R make-certs openssl.cnf kubedns-* manifests systemd tmp/
+cp -R make-certs kubeconfig.yaml openssl.cnf kubedns-* manifests systemd tmp/
 
 ovn-nbctl set-connection ptcp:6641
 ovn-sbctl set-connection ptcp:6642
@@ -31,6 +31,7 @@ sed -i"*" "s|__ETCD_VERSION__|$ETCD_VERSION|g" tmp/systemd/etcd3.service
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/manifests/*.yaml
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/systemd/kubelet.service
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/openssl.cnf
+sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/kubeconfig.yaml
 
 sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_INTERNAL_IP|g" tmp/manifests/*.yaml
 sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_INTERNAL_IP|g" tmp/openssl.cnf
@@ -66,6 +67,7 @@ cd ..
 
 mkdir -p /etc/kubernetes
 cp -R tmp/manifests /etc/kubernetes/
+cp tmp/kubeconfig.yaml /etc/kubernetes
 
 
 

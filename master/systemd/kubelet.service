@@ -18,6 +18,7 @@ ExecStart=/usr/bin/docker run \
     -d \
     gcr.io/google_containers/hyperkube-amd64:v__K8S_VERSION__ \
     /hyperkube kubelet \
+        --kubeconfig=/etc/kubernetes/kubeconfig.yaml \
         --address=__MASTER_IP__ \
         --node-ip=__MASTER_IP__ \
         --register-schedulable=false \
