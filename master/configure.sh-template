@@ -34,6 +34,8 @@ sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/openssl.cnf
 
 sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_INTERNAL_IP|g" tmp/manifests/*.yaml
 sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_INTERNAL_IP|g" tmp/openssl.cnf
+sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_INTERNAL_IP|g" tmp/systemd/kubelet.service
+
 
 sed -i"*" "s|__HOSTNAME__|$HOSTNAME|g" tmp/systemd/kubelet.service
 sed -i"*" "s|__HOSTNAME__|$HOSTNAME|g" tmp/make-certs

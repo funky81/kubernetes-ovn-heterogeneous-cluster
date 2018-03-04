@@ -32,10 +32,10 @@ sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/systemd/kubelet.service
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/openssl.cnf
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/kubeconfig.yaml
 
-sed -i"*" "s|__LOCAL_IP__|$LOCAL_IP|g" tmp/systemd/kubelet.service
+sed -i"*" "s|__WORKER_LINUX_INTERNAL_IP__|$WORKER_LINUX_INTERNAL_IP|g" tmp/systemd/kubelet.service
 sed -i"*" "s|__LOCAL_IP__|$LOCAL_IP|g" tmp/openssl.cnf
 
-sed -i"*" "s|__K8S_WORKER_LINUX_NODE_POD_SUBNET__|$K8S_WORKER_LINUX_NODE_POD_SUBNET|g" tmp/openssl.cnf
+sed -i"*" "s|__WORKER_LINUX_INTERNAL_IP__|$WORKER_LINUX_INTERNAL_IP|g" tmp/openssl.cnf
 
 sed -i"*" "s|__HOSTNAME__|$HOSTNAME|g" tmp/systemd/kubelet.service
 sed -i"*" "s|__HOSTNAME__|$HOSTNAME|g" tmp/make-certs
