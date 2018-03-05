@@ -13,4 +13,3 @@ DNS.3 = kubernetes.default.svc
 DNS.4 = kubernetes.default.svc.__K8S_DNS_DOMAIN__
 IP.1 = __K8S_API_SERVICE_IP__
 IP.2 = __MASTER_IP__
-IP.3 = __MASTER_INTERNAL_IP__

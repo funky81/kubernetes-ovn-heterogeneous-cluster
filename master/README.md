@@ -20,7 +20,9 @@ When it's ready, SSH into it:
 gcloud compute ssh --zone "us-east1-d" "sig-windows-master"
 ```
 
-**ATTENTION**: From now on, it's assumed you're logged-in as `root`.
+**ATTENTION**: 
+- From now on, it's assumed you're logged-in as `root`.
+- Turn off swap by : `swapoff -a`
 
 Let's install OVS/OVN:
 ```sh
@@ -35,6 +37,8 @@ apt install -y docker.io dkms
 cd ~
 git clone https://github.com/funky81/kubernetes-ovn-heterogeneous-cluster
 cd kubernetes-ovn-heterogeneous-cluster/deb
+
+apt-get install python python-six -f -y
 
 dpkg -i openvswitch-common_2.7.2-1_amd64.deb \
 openvswitch-datapath-dkms_2.7.2-1_all.deb \
@@ -67,7 +71,7 @@ SSH again into the machine, become root and proceed to configure OVS/OVN.
 Create the OVS bridge interface:
 ```sh
 export TUNNEL_MODE=geneve
-export LOCAL_IP=10.142.0.2
+export LOCAL_IP=192.168.34.5
 export MASTER_IP=$LOCAL_IP
 
 ovn-nbctl set-connection ptcp:6641
@@ -83,7 +87,7 @@ ovs-vsctl get Open_vSwitch . external_ids
 
 You should see something like:
 ```
-{hostname=sig-windows-master.c.apprenda-project-one.internal, ovn-encap-ip="10.142.0.2", ovn-encap-type=geneve, ovn-nb="tcp:10.142.0.2:6641", ovn-remote="tcp:10.142.0.2:6642", system-id="e7af27f6-a218-40bb-8d4f-af67600abd17"}
+{hostname=`<Your Hostname>`, ovn-encap-ip="10.142.0.2", ovn-encap-type=geneve, ovn-nb="tcp:10.142.0.2:6641", ovn-remote="tcp:10.142.0.2:6642", system-id="e7af27f6-a218-40bb-8d4f-af67600abd17"}
 ```
 
 We are now ready to set-up Kubernetes master node.
@@ -101,10 +105,10 @@ cd ~/kubernetes-ovn-heterogeneous-cluster/master
 
 rm -rf tmp
 mkdir tmp
-cp -R make-certs openssl.cnf kubedns-* manifests systemd tmp/
+cp -R make-certs openssl.cnf kubedns-* manifests systemd kubeconfig.yaml tmp/
 
-export HOSTNAME=`hostname`
-export K8S_VERSION=1.7.3
+export HOSTNAME=mgmtw
+export K8S_VERSION=1.9.3
 export K8S_POD_SUBNET=10.244.0.0/16
 export K8S_NODE_POD_SUBNET=10.244.1.0/24
 export K8S_SERVICE_SUBNET=10.100.0.0/16
@@ -125,6 +129,9 @@ sed -i"*" "s|__ETCD_VERSION__|$ETCD_VERSION|g" tmp/systemd/etcd3.service
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/manifests/*.yaml
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/systemd/kubelet.service
 sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/openssl.cnf
+sed -i"*" "s|__MASTER_IP__|$MASTER_IP|g" tmp/kubeconfig.yaml
+
+sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_IP|g" tmp/openssl.cnf
 
 sed -i"*" "s|__MASTER_INTERNAL_IP__|$MASTER_INTERNAL_IP|g" tmp/manifests/*.yaml
 
@@ -156,6 +163,7 @@ cd ..
 
 mkdir -p /etc/kubernetes
 cp -R tmp/manifests /etc/kubernetes/
+cp -R tmp/kubeconfig.yaml /etc/kubernetes/
 
 systemctl enable kubelet
 systemctl start kubelet
