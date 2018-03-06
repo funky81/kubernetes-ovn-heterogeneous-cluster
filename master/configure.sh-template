@@ -1,8 +1,23 @@
 #!/bin/bash
+export TUNNEL_MODE=geneve
+export LOCAL_IP=192.168.34.5
+export MASTER_IP=$LOCAL_IP
+export HOSTNAME=mgmtw
+export K8S_VERSION=1.9.3
+export K8S_POD_SUBNET=10.244.0.0/16
+export K8S_NODE_POD_SUBNET=10.244.1.0/24
+export K8S_SERVICE_SUBNET=10.100.0.0/16
+export K8S_API_SERVICE_IP=10.100.0.1
+export K8S_DNS_VERSION=1.13.0
+export K8S_DNS_SERVICE_IP=10.100.0.10
+export K8S_DNS_DOMAIN=cluster.local
+export ETCD_VERSION=3.1.1
+export MASTER_INTERNAL_IP=10.244.1.2
 
 echo "Executing configure-node on ${HOSTNAME}"
 
-cd ${ROOT_CHECKOUT_DIR}/${nodeType}
+echo "Turn Off Swap"
+swapoff -a
 
 pwd
 
@@ -69,8 +84,7 @@ mkdir -p /etc/kubernetes
 cp -R tmp/manifests /etc/kubernetes/
 cp tmp/kubeconfig.yaml /etc/kubernetes
 
-
-
+docker pull gcr.io/google_containers/hyperkube-amd64:v1.9.3
 curl -Lskj -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v$K8S_VERSION/bin/linux/amd64/kubectl
 chmod +x /usr/bin/kubectl
 
@@ -81,7 +95,6 @@ kubectl config use-context local
 
 systemctl enable kubelet
 systemctl start kubelet
-
 
 echo "Sleeping for 90 seconds before polling for k8s api server"
 sleep 90
@@ -96,9 +109,7 @@ while [[ "${apiIsUp}" == "false" ]]; do
         echo "API server not available yet, waiting 10 seconds and retrying"
         sleep 10
 	fi
-
 done
-
 
 export TOKEN=$(kubectl describe secret $(kubectl get secrets | grep default | cut -f1 -d ' ') | grep -E '^token' | cut -f2 -d':' | tr -d '\t')
 
@@ -115,7 +126,7 @@ apt install -y python-pip
 
 pip install --upgrade pip
 
-cd ${ROOT_CHECKOUT_DIR}/../
+cd ~
 git clone https://github.com/openvswitch/ovn-kubernetes
 cd ovn-kubernetes
 
@@ -123,12 +134,12 @@ pip install --upgrade --prefix=/usr/local --ignore-installed .
 
 ovn-k8s-overlay master-init \
   --cluster-ip-subnet="$K8S_POD_SUBNET" \
-  --master-switch-subnet="$K8S_MASTER_NODE_POD_SUBNET" \
+  --master-switch-subnet="$K8S_NODE_POD_SUBNET" \
   --node-name="$HOSTNAME"
 
 systemctl enable ovn-k8s-watcher
 systemctl start ovn-k8s-watcher
 
-cd ${ROOT_CHECKOUT_DIR}/master
+cd ~/kubernetes-ovn-heterogeneous-cluster/master/
 kubectl create -f tmp/kubedns-deployment.yaml
 kubectl create -f tmp/kubedns-service.yaml
