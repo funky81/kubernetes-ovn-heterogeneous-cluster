@@ -3,7 +3,7 @@ $SUBNET="10.244.9.0/24" # The minion subnet used to spawn pods on
 $GATEWAY_IP="10.244.9.1" # first ip of the subnet
 $CLUSTER_IP_SUBNET="10.244.0.0/16" # The big subnet which includes the minions subnets
 $INTERFACE_ALIAS="Ethernet" # Interface used for creating the overlay tunnels (must have connectivity with other hosts)
-$KUBERNETES_API_SERVER="10.142.0.2" # API kubernetes server IP
+$KUBERNETES_API_SERVER="10.142.1.2" # API kubernetes server IP
 #Invoke-RestMethod -URI http://metadata.google.internal/computeMetadata/v1/instance/attributes/apiServer -Headers @{"Metadata-Flavor" = "Google"}  # API kubernetes server IP
 $PUBLIC_IP=(Get-NetIPConfiguration | Where-Object {$_.InterfaceAlias -eq "Ethernet"}).IPv4Address.IPAddress
 
@@ -14,7 +14,7 @@ $OVS_PATH="c:\Program Files\Cloudbase Solutions\Open vSwitch\bin" # Default inst
 Write-Host "Stopping Docker"
 Stop-Service docker
 Write-Host "Removing Container Network"
-Get-ContainerNetwork | Remove-ContainerNetwork -Force
+Get-ContainerNet | Remove-ContainerNet -Force
 cmd /c 'echo { "bridge" : "none" } > C:\ProgramData\docker\config\daemon.json'
 Write-Host "Starting Docker"
 Start-Service docker
